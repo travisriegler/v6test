@@ -13,7 +13,7 @@ public class HealthCheckController {
 
     @GetMapping("/healthcheck")
     public ResponseEntity<String> checkHealth() {
-        return ResponseEntity.ok("healthy, instance-uuid: " + instanceUuid);
+        return ResponseEntity.ok("I'm doing a test. healthy, instance-uuid: " + instanceUuid);
     }
 }
 

@@ -80,7 +80,9 @@ jobs:
               --output text \
               --region "us-east-1")
           done
-          if [[ $status != "Success" ]]; then
+          if [[ $(echo $status | grep -o "Success" | wc -l) -eq $(echo $status | wc -w) ]]; then
+            echo "Command completed successfully."
+          else
             echo "Command did not complete successfully. Status: $status"
             exit 1
           fi

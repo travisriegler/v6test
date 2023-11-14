@@ -51,3 +51,13 @@ jobs:
           role-to-assume: arn:aws:iam::881990811866:role/v6test-github
           role-session-name: samplerolesession
           aws-region: "us-east-1"
+
+      - name: Trigger AWS Systems Manager Run Command
+        run: |
+          aws ssm send-command \
+            --document-name "Github-staging-update-EC2" \
+            --targets '[{"Key":"tag:env","Values":["staging"]}]' \
+            --timeout-seconds 600 \
+            --max-concurrency "50" \
+            --max-errors "0" \
+            --region "us-east-1"

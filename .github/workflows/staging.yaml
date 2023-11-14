@@ -9,6 +9,10 @@ on:
       - synchronize
       - reopened
 
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
 jobs:
   build:
     name: build-staging
@@ -33,10 +37,17 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staging${{ github.run_number }},
             ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staginglatest
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::881990811866:role/v6test-github
+          role-session-name: samplerolesession
+          aws-region: "us-east-1"

@@ -14,7 +14,7 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
-  build:
+  mvn-build-test:
     name: build-staging
     runs-on: ubuntu-22.04
     steps:
@@ -29,6 +29,20 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean test
+
+  docker-build-push:
+    name: Docker build and push
+    runs-on: ubuntu-22.04
+    needs: mvn-build-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '17'
 
       - name: Extract project version from pom.xml
         run: echo "PROJECT_VERSION=$(mvn help:evaluate \"-Dexpression=project.version\" -q -DforceStdout)" >> $GITHUB_ENV
@@ -51,11 +65,16 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staging-${{ env.PROJECT_VERSION }}-pr${{ env.PR_NUMBER }},
             ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staging-latest
 
+  deploy:
+    name: deploy to aws
+    runs-on: ubuntu-22.04
+    needs: docker-build-push
+    steps:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::881990811866:role/v6test-github
-          role-session-name: samplerolesession
+          role-session-name: sample-role-session
           aws-region: "us-east-1"
 
       - name: Trigger AWS Systems Manager Run Command

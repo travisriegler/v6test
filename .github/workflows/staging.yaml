@@ -30,6 +30,9 @@ jobs:
       - name: Build with Maven
         run: mvn clean test
 
+      - name: Extract project version from pom.xml
+        run: echo "PROJECT_VERSION=$(mvn help:evaluate \"-Dexpression=project.version\" -q -DforceStdout)" >> $GITHUB_ENV
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -42,7 +45,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staging${{ github.run_number }},
+            ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staging${{ env.PROJECT_VERSION }},
             ${{ secrets.DOCKERHUB_USERNAME }}/v6test:staginglatest
 
       - name: configure aws credentials

@@ -33,7 +33,7 @@ WORKDIR /usr/app
 USER javauser
 
 # Copy the jar file built in the first stage
-COPY --from=builder /usr/src/app/target/v6test-0.0.1.jar ./v6test-0.0.1.jar
+COPY --from=builder /usr/src/app/target/app.jar ./app.jar
 
 # Set the spring profiles active environment variable
 # spring will automatically grab this env and apply it, no need to manually inject into app.properties
@@ -45,6 +45,6 @@ ENV SPRING_PROFILES_ACTIVE=$SPRING_PROFILE
 EXPOSE 8080
 
 # Run your jar file
-ENTRYPOINT ["java","-jar","./v6test-0.0.1.jar"]
+ENTRYPOINT ["java","-jar","./app.jar"]
 
 
